@@ -6,6 +6,7 @@
   "sequencerWindowSize": 200,
   "channelTimeout": 120,
   "p2pSequencerAddress": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+  "dataAvailabilityInboxAddress": "0xff11100000000000000000000000000000000000",
   "batchInboxAddress": "0xff00000000000000000000000000000000000000",
   "batchSenderAddress": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
   "l2OutputOracleSubmissionInterval": 20,
@@ -33,7 +34,7 @@
   "governanceTokenOwner": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
   "eip1559Denominator": 8,
   "eip1559Elasticity": 2,
-  "l1GenesisBlockTimestamp": "0x638a4554",
+  "l1GenesisBlockTimestamp": "0x643fc8b1",
   "l1StartingBlockTag": "earliest",
   "l2GenesisRegolithTimeOffset": "0x0"
 }

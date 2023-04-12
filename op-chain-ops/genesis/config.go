@@ -39,6 +39,7 @@ type DeployConfig struct {
 	SequencerWindowSize       uint64         `json:"sequencerWindowSize"`
 	ChannelTimeout            uint64         `json:"channelTimeout"`
 	P2PSequencerAddress       common.Address `json:"p2pSequencerAddress"`
+	DataAvailabilityInboxAddress         common.Address `json:"dataAvailabilityInboxAddress"`
 	BatchInboxAddress         common.Address `json:"batchInboxAddress"`
 	BatchSenderAddress        common.Address `json:"batchSenderAddress"`
 
@@ -109,6 +110,7 @@ type DeployConfig struct {
 
 	EIP1559Elasticity  uint64 `json:"eip1559Elasticity"`
 	EIP1559Denominator uint64 `json:"eip1559Denominator"`
+  L1GasPriceDivider uint64 `json:"l1GasPriceDivider,omitempty"`
 
 	FundDevAccounts bool `json:"fundDevAccounts"`
 }

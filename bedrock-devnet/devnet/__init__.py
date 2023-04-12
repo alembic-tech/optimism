@@ -106,7 +106,7 @@ def main():
         shutil.move(devnet_cfg_backup, devnet_cfg_orig)
 
     log.info('Bringing up L2.')
-    run_command(['docker-compose', 'up', '-d', 'l2'], cwd=ops_bedrock_dir, env={
+    run_command(['docker-compose', 'up', '-d', 'l2', 'data-availability'], cwd=ops_bedrock_dir, env={
         'PWD': ops_bedrock_dir
     })
     wait_up(9545)

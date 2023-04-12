@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 
+	"github.com/ethereum-optimism/optimism/da"
 	"github.com/ethereum-optimism/optimism/op-node/eth"
 	"github.com/ethereum-optimism/optimism/op-node/rollup"
 	"github.com/ethereum-optimism/optimism/op-node/rollup/derive"
@@ -101,15 +102,20 @@ type AltSync interface {
 	// An error may be returned if the scheduling fails immediately, e.g. a context timeout.
 	RequestL2Range(ctx context.Context, start, end eth.L2BlockRef) error
 }
-
 // NewDriver composes an events handler that tracks L1 state, triggers L2 derivation, and optionally sequences new L2 blocks.
 func NewDriver(driverCfg *Config, cfg *rollup.Config, l2 L2Chain, l1 L1Chain, altSync AltSync, network Network, log log.Logger, snapshotLog log.Logger, metrics Metrics) *Driver {
-	l1 = NewMeteredL1Fetcher(l1, metrics)
+  return NewDriverWithDA(driverCfg, cfg, l2, l1, altSync, network, nil, log, snapshotLog, metrics)
+}
+
+// NewDriverWithDA composes an events handler that tracks L1 state, triggers L2 derivation, and optionally sequences new L2 blocks.
+func NewDriverWithDA(driverCfg *Config, cfg *rollup.Config, l2 L2Chain, l1 L1Chain, altSync AltSync, network Network, da *da.Client, log log.Logger, snapshotLog log.Logger, metrics Metrics) *Driver {
+  l1 = NewMeteredL1Fetcher(l1, metrics)
 	l1State := NewL1State(log, metrics)
 	sequencerConfDepth := NewConfDepth(driverCfg.SequencerConfDepth, l1State.L1Head, l1)
 	findL1Origin := NewL1OriginSelector(log, cfg, sequencerConfDepth)
 	verifConfDepth := NewConfDepth(driverCfg.VerifierConfDepth, l1State.L1Head, l1)
-	derivationPipeline := derive.NewDerivationPipeline(log, cfg, verifConfDepth, l2, metrics)
+
+	derivationPipeline := derive.NewDerivationPipelineWithDA(log, cfg, verifConfDepth, l2, metrics, da)
 	attrBuilder := derive.NewFetchingAttributesBuilder(cfg, l1, l2)
 	engine := derivationPipeline
 	meteredEngine := NewMeteredEngine(cfg, engine, metrics, log)

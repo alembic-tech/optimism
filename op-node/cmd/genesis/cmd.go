@@ -10,6 +10,7 @@ import (
 
 	"github.com/urfave/cli"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
@@ -157,6 +158,10 @@ var Subcommands = cli.Commands{
 			if err := rollupConfig.Check(); err != nil {
 				return fmt.Errorf("generated rollup config does not pass validation: %w", err)
 			}
+
+      if config.DataAvailabilityInboxAddress != (common.Address{}) {
+        rollupConfig.DataAvailabilityInboxAddress = config.DataAvailabilityInboxAddress
+      }
 
 			if err := writeGenesisFile(ctx.String("outfile.l2"), l2Genesis); err != nil {
 				return err

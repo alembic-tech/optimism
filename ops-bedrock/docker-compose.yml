@@ -46,6 +46,8 @@ services:
     build:
       context: ../
       dockerfile: ./op-node/Dockerfile
+    environment:
+      OP_NODE_CENTRALIZED_DA_API: "http://data-availability:3000"
     command: >
       op-node
       --l1=ws://l1:8546
@@ -130,17 +132,43 @@ services:
       OP_BATCHER_PPROF_ENABLED: "true"
       OP_BATCHER_METRICS_ENABLED: "true"
       OP_BATCHER_RPC_ENABLE_ADMIN: "true"
+      OP_BATCHER_CENTRALIZED_DA_API: "http://data-availability:3000"
 
-  stateviz:
-    build:
-      context: ../
-      dockerfile: ./ops-bedrock/Dockerfile.stateviz
-    command:
-      - stateviz
-      - -addr=0.0.0.0:8080
-      - -snapshot=/op_log/snapshot.log
-      - -refresh=10s
+        #  op-batcher:
+        #    depends_on:
+        #      - l1
+        #      - l2
+        #      - op-node
+        #    build:
+        #      context: ../
+        #      dockerfile: ./op-batcher/Dockerfile
+        #    ports:
+        #      - "6061:6060"
+        #      - "7301:7300"
+        #      - "6545:8545"
+        #    environment:
+        #      OP_BATCHER_L1_ETH_RPC: http://l1:8545
+        #      OP_BATCHER_L2_ETH_RPC: http://l2:8545
+        #      OP_BATCHER_ROLLUP_RPC: http://op-node:8545
+        #      TX_MANAGER_TIMEOUT: 10m
+        #      OFFLINE_GAS_ESTIMATION: false
+        #      OP_BATCHER_MAX_CHANNEL_DURATION: 1
+        #      OP_BATCHER_MAX_L1_TX_SIZE_BYTES: 120000
+        #      OP_BATCHER_TARGET_L1_TX_SIZE_BYTES: 100000
+        #      OP_BATCHER_TARGET_NUM_FRAMES: 1
+        #      OP_BATCHER_APPROX_COMPR_RATIO: 0.4
+        #      OP_BATCHER_SUB_SAFETY_MARGIN: 4 # SWS is 15, ChannelTimeout is 40
+        #      OP_BATCHER_POLL_INTERVAL: 1s
+        #      OP_BATCHER_NUM_CONFIRMATIONS: 1
+        #      OP_BATCHER_SAFE_ABORT_NONCE_TOO_LOW_COUNT: 3
+        #      OP_BATCHER_RESUBMISSION_TIMEOUT: 30s
+        #      OP_BATCHER_MNEMONIC: test test test test test test test test test test test junk
+        #      OP_BATCHER_SEQUENCER_HD_PATH: "m/44'/60'/0'/0/2"
+        #      OP_BATCHER_PPROF_ENABLED: "true"
+        #      OP_BATCHER_METRICS_ENABLED: "true"
+        #      OP_BATCHER_RPC_ENABLE_ADMIN: "true"
+
+  data-availability:
+    image: da
     ports:
-      - "9090:8080"
-    volumes:
-      - op_log:/op_log:ro
+      - "3000:3000"

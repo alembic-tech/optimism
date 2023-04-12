@@ -69,6 +69,10 @@ type Config struct {
 	// Required to identify the L2 network and create p2p signatures unique for this chain.
 	L2ChainID *big.Int `json:"l2_chain_id"`
 
+  // L1 address that off-chain batches information are sent to.
+  // These information must be sufficient to collect the whole batches data
+  DataAvailabilityInboxAddress common.Address `json:"data_availability_inbox_address,omitempty"`
+
 	// RegolithTime sets the activation time of the Regolith network-upgrade:
 	// a pre-mainnet Bedrock change that addresses findings of the Sherlock contest related to deposit attributes.
 	// "Regolith" is the loose deposited rock that sits on top of Bedrock.

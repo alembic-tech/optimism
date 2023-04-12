@@ -1,12 +1,15 @@
 package batcher
 
 import (
+	"errors"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli"
 
+	"github.com/ethereum-optimism/optimism/da"
 	"github.com/ethereum-optimism/optimism/op-batcher/compressor"
 	"github.com/ethereum-optimism/optimism/op-batcher/flags"
 	"github.com/ethereum-optimism/optimism/op-batcher/metrics"
@@ -25,6 +28,7 @@ type Config struct {
 	L1Client   *ethclient.Client
 	L2Client   *ethclient.Client
 	RollupNode *sources.RollupClient
+  DA *da.Client
 	TxManager  txmgr.TxManager
 
 	NetworkTimeout         time.Duration
@@ -46,6 +50,9 @@ func (c *Config) Check() error {
 	if err := c.Channel.Check(); err != nil {
 		return err
 	}
+	if c.Rollup.DataAvailabilityInboxAddress != (common.Address{}) && c.DA == nil {
+		return errors.New("da inbox address set but no da client configured")
+	}
 	return nil
 }
 
@@ -58,6 +65,8 @@ type CLIConfig struct {
 
 	// RollupRpc is the HTTP provider URL for the L2 rollup node.
 	RollupRpc string
+
+  CentralizedDAApi string
 
 	// MaxChannelDuration is the maximum duration (in #L1-blocks) to keep a
 	// channel open. This allows to more eagerly send batcher transactions
@@ -121,6 +130,7 @@ func NewConfig(ctx *cli.Context) CLIConfig {
 		L1EthRpc:        ctx.GlobalString(flags.L1EthRpcFlag.Name),
 		L2EthRpc:        ctx.GlobalString(flags.L2EthRpcFlag.Name),
 		RollupRpc:       ctx.GlobalString(flags.RollupRpcFlag.Name),
+    CentralizedDAApi: ctx.GlobalString(flags.CentralizedDAApiFlag.Name),
 		SubSafetyMargin: ctx.GlobalUint64(flags.SubSafetyMarginFlag.Name),
 		PollInterval:    ctx.GlobalDuration(flags.PollIntervalFlag.Name),
 

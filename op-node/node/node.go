@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 
+	"github.com/ethereum-optimism/optimism/da"
 	"github.com/ethereum-optimism/optimism/op-node/client"
 	"github.com/ethereum-optimism/optimism/op-node/eth"
 	"github.com/ethereum-optimism/optimism/op-node/metrics"
@@ -35,10 +36,11 @@ type OpNode struct {
 	l2Source  *sources.EngineClient // L2 Execution Engine RPC bindings
 	rpcSync   *sources.SyncClient   // Alt-sync RPC client, optional (may be nil)
 	server    *rpcServer            // RPC server hosting the rollup-node API
-	p2pNode   *p2p.NodeP2P          // P2P node functionality
-	p2pSigner p2p.Signer            // p2p gogssip application messages will be signed with this signer
-	tracer    Tracer                // tracer to get events for testing/debugging
-	runCfg    *RuntimeConfig        // runtime configurables
+	da        *da.Client
+	p2pNode   *p2p.NodeP2P   // P2P node functionality
+	p2pSigner p2p.Signer     // p2p gogssip application messages will be signed with this signer
+	tracer    Tracer         // tracer to get events for testing/debugging
+	runCfg    *RuntimeConfig // runtime configurables
 
 	// some resources cannot be stopped directly, like the p2p gossipsub router (not our design),
 	// and depend on this ctx to be closed.
@@ -199,7 +201,7 @@ func (n *OpNode) initL2(ctx context.Context, cfg *Config, snapshotLog log.Logger
 		return err
 	}
 
-	n.l2Driver = driver.NewDriver(&cfg.Driver, &cfg.Rollup, n.l2Source, n.l1Source, n, n, n.log, snapshotLog, n.metrics)
+	n.l2Driver = driver.NewDriverWithDA(&cfg.Driver, &cfg.Rollup, n.l2Source, n.l1Source, n, n, cfg.DA, n.log, snapshotLog, n.metrics)
 
 	return nil
 }

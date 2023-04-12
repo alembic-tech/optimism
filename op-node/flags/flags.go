@@ -34,6 +34,11 @@ var (
 		Usage:  "Address of L2 Engine JSON-RPC endpoints to use (engine and eth namespace required)",
 		EnvVar: prefixEnvVar("L2_ENGINE_RPC"),
 	}
+  CentralizedDAApiFlag = cli.StringFlag{
+    Name: "centralized-da-api",
+    Usage: "HTTP api URL for Centralized DA",
+    EnvVar: prefixEnvVar("CENTRALIZED_DA_API"),
+  }
 	RollupConfig = cli.StringFlag{
 		Name:   "rollup.config",
 		Usage:  "Rollup chain parameters",
@@ -218,6 +223,7 @@ var requiredFlags = []cli.Flag{
 }
 
 var optionalFlags = []cli.Flag{
+  CentralizedDAApiFlag,
 	RollupConfig,
 	Network,
 	L1TrustRPC,

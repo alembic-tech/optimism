@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ethereum-optimism/optimism/da"
 	"github.com/ethereum-optimism/optimism/op-node/chaincfg"
 	"github.com/ethereum-optimism/optimism/op-node/sources"
 	oppprof "github.com/ethereum-optimism/optimism/op-service/pprof"
@@ -57,10 +58,20 @@ func NewConfig(ctx *cli.Context, log log.Logger) (*node.Config, error) {
 
 	l2SyncEndpoint := NewL2SyncEndpointConfig(ctx)
 
+  var daClient *da.Client
+  daURL := ctx.GlobalString(flags.CentralizedDAApiFlag.Name)
+  if daURL != "" {
+    log.Info("initializing centralized da client", "url", daURL)
+    daClient = da.NewClient(daURL)
+  }
+
 	cfg := &node.Config{
 		L1:     l1Endpoint,
 		L2:     l2Endpoint,
 		L2Sync: l2SyncEndpoint,
+
+    DA: daClient,
+
 		Rollup: *rollupConfig,
 		Driver: *driverConfig,
 		RPC: node.RPCConfig{
@@ -175,6 +186,7 @@ func NewRollupConfig(ctx *cli.Context) (*rollup.Config, error) {
 	if err := json.NewDecoder(file).Decode(&rollupConfig); err != nil {
 		return nil, fmt.Errorf("failed to decode rollup config: %w", err)
 	}
+
 	return &rollupConfig, nil
 }
 

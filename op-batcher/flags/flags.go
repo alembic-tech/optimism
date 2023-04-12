@@ -36,6 +36,12 @@ var (
 		EnvVar: opservice.PrefixEnvVar(EnvVarPrefix, "ROLLUP_RPC"),
 	}
 	// Optional flags
+  CentralizedDAApiFlag = cli.StringFlag{
+    Name: "centralized-da-api",
+    Usage: "HTTP api URL for Centralized DA",
+    Required: false,
+    EnvVar: opservice.PrefixEnvVar(EnvVarPrefix, "CENTRALIZED_DA_API"),
+  }
 	SubSafetyMarginFlag = cli.Uint64Flag{
 		Name: "sub-safety-margin",
 		Usage: "The batcher tx submission safety margin (in #L1-blocks) to subtract " +
@@ -91,6 +97,7 @@ var optionalFlags = []cli.Flag{
 	MaxL1TxSizeBytesFlag,
 	StoppedFlag,
 	SequencerHDPathFlag,
+  CentralizedDAApiFlag,
 }
 
 func init() {

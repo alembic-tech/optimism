@@ -6,16 +6,20 @@ import (
 	"math"
 	"time"
 
+	"github.com/ethereum-optimism/optimism/da"
 	"github.com/ethereum-optimism/optimism/op-node/p2p"
 	"github.com/ethereum-optimism/optimism/op-node/rollup"
 	"github.com/ethereum-optimism/optimism/op-node/rollup/driver"
 	oppprof "github.com/ethereum-optimism/optimism/op-service/pprof"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type Config struct {
 	L1     L1EndpointSetup
 	L2     L2EndpointSetup
 	L2Sync L2SyncEndpointSetup
+
+	DA *da.Client
 
 	Driver driver.Config
 
@@ -96,6 +100,9 @@ func (cfg *Config) Check() error {
 		if err := cfg.P2P.Check(); err != nil {
 			return fmt.Errorf("p2p config error: %w", err)
 		}
+	}
+	if cfg.Rollup.DataAvailabilityInboxAddress != (common.Address{}) && cfg.DA == nil {
+		return errors.New("da inbox address set but no da client configured")
 	}
 	return nil
 }
