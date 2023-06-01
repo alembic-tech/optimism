@@ -17,7 +17,6 @@ import (
 	opclient "github.com/ethereum-optimism/optimism/op-service/client"
 	"github.com/ethereum-optimism/optimism/op-service/txmgr"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/log"
@@ -401,14 +400,14 @@ func (l *BatchSubmitter) sendTransaction(txdata txData, queue *txmgr.Queue[txDat
   actualData := data
   useDA := l.DA != nil && l.Rollup.DataAvailabilityInboxAddress != (common.Address{})
   if useDA {
-    id, err := l.DA.PostBatch(data)
+    dataHash, err := l.DA.PostBatch(data)
     if err != nil {
       l.log.Error("unable to publish data to DA", "err", err, "data_size", len(data))
       return
     }
 
     to = &l.Rollup.DataAvailabilityInboxAddress
-    actualData = append([]byte{da.CentralizedBatchHeaderID}, hexutil.MustDecode(id)...)
+    actualData = append([]byte{da.CentralizedBatchHeaderID}, dataHash...)
   }
 
 	candidate := txmgr.TxCandidate{

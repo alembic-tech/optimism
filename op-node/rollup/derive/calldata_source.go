@@ -8,7 +8,6 @@ import (
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/log"
 
@@ -177,8 +176,8 @@ func DataFromEVMTransactions(config *rollup.Config, batcherAddr common.Address, 
         log.Warn("invalid DA batch header", "tx_hash", tx.Hash())
         continue
       }
-      id := hexutil.Encode(tx.Data()[1:])
-			data, err := daClient.GetBatch(id)
+      dataHash := tx.Data()[1:]
+			data, err := daClient.GetBatch(dataHash)
 			if err != nil {
 				return nil, err
 			}
