@@ -24,6 +24,7 @@ func NewClient(apiUrl string) *Client {
 
 func (c *Client) PostBatch(data []byte) ([]byte, error) {
 
+  fmt.Println("----------data in PostBatch function", data)
   apiUrl := *c.url
   apiUrl.Path = "batch"
 

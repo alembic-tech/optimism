@@ -398,7 +398,8 @@ func (l *BatchSubmitter) sendTransaction(txdata txData, queue *txmgr.Queue[txDat
 
   to := &l.Rollup.BatchInboxAddress
   actualData := data
-  useDA := l.DA != nil && l.Rollup.DataAvailabilityInboxAddress != (common.Address{})
+  useDA := l.DA != nil && l.Rollup.DataAvailabilityInboxAddress == (common.Address{})
+  fmt.Println("---------------------useDA", useDA)
   if useDA {
     dataHash, err := l.DA.PostBatch(data)
     if err != nil {
