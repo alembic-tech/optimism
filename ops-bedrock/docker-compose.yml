@@ -8,7 +8,7 @@ volumes:
   l1_data:
   l2_data:
   op_log:
-
+  mongodb-data:
 
 services:
   l1:
@@ -147,3 +147,13 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "8001:8001"
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - 27012:27017
+    volumes:
+      - mongodb-data:/data/db

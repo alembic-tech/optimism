@@ -11,7 +11,7 @@ const { dbInstance, connectDB } = require("./db");
 
 const { memberConfig } = require("./config.js");
 
-// connectDB();
+connectDB();
 member.post("/signCert", async (req, res) => {
   let { data /*timeout, sig*/ } = req.fields;
   // timeout = new Uint8Array(timeout);
@@ -34,13 +34,13 @@ member.post("/signCert", async (req, res) => {
       const sig = utils.bytesToHex(bls.sign(dataHash, memberConfig.privateKey));
 
       // Save the data to the database
-      // if (!dbInstance.models["Data"]) dbInstance.model("Data", dataSchema);
-      // const newData = dbInstance.model("Data")({
-      //   data,
-      //   dataHash,
-      //   timeout,
-      // });
-      // await newData.save();
+      if (!dbInstance.models["Data"]) dbInstance.model("Data", dataSchema);
+      const newData = dbInstance.model("Data")({
+        data,
+        dataHash,
+        // timeout,
+      });
+      await newData.save();
 
       const certDetails = {
         sig,
