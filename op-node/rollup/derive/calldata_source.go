@@ -178,6 +178,7 @@ func DataFromEVMTransactions(config *rollup.Config, batcherAddr common.Address, 
       }
       dataHash := tx.Data()[1:]
 			data, err := daClient.GetBatch(dataHash)
+			fmt.Println("-----------data from DA", data)
 			if err != nil {
 				return nil, err
 			}

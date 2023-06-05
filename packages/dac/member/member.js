@@ -26,9 +26,7 @@ member.post("/signCert", async (req, res) => {
     //   memberConfig.publicKey
     // );
 
-    let isValidSequencerSig = true;
-    console.log("-------isValidSequencerSig", isValidSequencerSig);
-    if (isValidSequencerSig) {
+    if (/*isValidSequencerSig*/true) {
       // Sign the data
       const dataHash = crypto.hashMsg(msg);
       const sig = utils.bytesToHex(bls.sign(dataHash, memberConfig.privateKey));
@@ -46,8 +44,6 @@ member.post("/signCert", async (req, res) => {
         sig,
         dataHash,
       };
-
-      console.log("-------certDetails", certDetails);
       res.status(200).json(certDetails);
     } else {
       res.status(400).json({ message: "Invalid sequencer/batcher signature" });

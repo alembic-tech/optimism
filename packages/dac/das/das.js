@@ -66,7 +66,6 @@ das.post("/batch", async (req, res) => {
 
     let isValidAggSignature = true;
 
-    console.log("---------dataHash", dataHash);
     if (isValidAggSignature) {
       res.status(200).json({ dataHash /*signersIndex, aggSignature*/ });
     } else {
