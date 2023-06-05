@@ -83,7 +83,7 @@ das.get("/batch/:dataHash", async (req, res) => {
   const daMembers = dasConfig.members.length;
   for (let i = 0; i < daMembers; i++) {
     let promise = axios.get(
-      `http://localhost:${dasConfig.members[i].port}/batch/${dataHash}`
+      `http://member:${dasConfig.members[i].port}/batch/${dataHash}`
     );
     promises.push(promise);
   }
