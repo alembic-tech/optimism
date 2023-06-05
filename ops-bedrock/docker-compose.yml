@@ -168,7 +168,7 @@ services:
         #      OP_BATCHER_METRICS_ENABLED: "true"
         #      OP_BATCHER_RPC_ENABLE_ADMIN: "true"
 
-  das:
+  data-availability:
     image: das
     ports:
       - "3000:3000"
