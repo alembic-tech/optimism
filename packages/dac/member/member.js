@@ -47,6 +47,7 @@ member.post("/signCert", async (req, res) => {
         dataHash,
       };
 
+      console.log("-------certDetails", certDetails);
       res.status(200).json(certDetails);
     } else {
       res.status(400).json({ message: "Invalid sequencer/batcher signature" });

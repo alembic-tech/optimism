@@ -21,7 +21,7 @@ das.post("/batch", async (req, res) => {
   for (let i = 0; i < daMembers; i++) {
     try {
       let promise = axios.post(
-        `http://localhost:${dasConfig.members[i].port}/signCert`,
+        `http://member:${dasConfig.members[i].port}/signCert`,
         body
       );
       promises.push(promise);
@@ -66,6 +66,7 @@ das.post("/batch", async (req, res) => {
 
     let isValidAggSignature = true;
 
+    console.log("---------dataHash", dataHash);
     if (isValidAggSignature) {
       res.status(200).json({ dataHash /*signersIndex, aggSignature*/ });
     } else {
