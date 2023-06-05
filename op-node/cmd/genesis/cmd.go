@@ -73,6 +73,10 @@ var Subcommands = cli.Commands{
 				return err
 			}
 
+      if ctx.Bool("dac.enable") {
+        rollupConfig.DataAvailabilityInboxAddress = common.HexToAddress("0x0000000000000000012300000000000000000123")
+      }
+
 			if err := writeGenesisFile(ctx.String("outfile.l1"), l1Genesis); err != nil {
 				return err
 			}
@@ -106,6 +110,11 @@ var Subcommands = cli.Commands{
 				Name:  "outfile.rollup",
 				Usage: "Path to rollup output file",
 			},
+      cli.BoolFlag{
+        Required: false,
+        Name: "dac.enable",
+        Usage: "Set to true if rollup should use DAC mode. DataAvailabilityInboxAddress is set to a non-zero value if true.",
+      },
 		},
 		Action: func(ctx *cli.Context) error {
 			deployConfig := ctx.String("deploy-config")

@@ -97,7 +97,8 @@ def main():
             '--deploy-config', devnet_cfg_orig,
             '--deployment-dir', deployment_dir,
             '--outfile.l2', pjoin(devnet_dir, 'genesis-l2.json'),
-            '--outfile.rollup', pjoin(devnet_dir, 'rollup.json')
+            '--outfile.rollup', pjoin(devnet_dir, 'rollup.json'),
+            '--dac.enable'
         ], cwd=op_node_dir)
 
     rollup_config = read_json(rollup_config_path)
