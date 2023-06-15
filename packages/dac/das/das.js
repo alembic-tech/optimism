@@ -56,10 +56,7 @@ das.post("/batch", async (req, res) => {
     data_hash: dataHash,
     signature: encodeHex(aggregatedSignature.toRawBytes(false)),
     public_keys: publicKeys,
-    signatures,
   }
-
-  console.log(response)
   res.status(200).json(response);
 });
 
