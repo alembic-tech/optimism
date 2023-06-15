@@ -10,13 +10,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum-optimism/optimism/da"
+	"github.com/ethereum-optimism/optimism/da/dac"
+	"github.com/ethereum-optimism/optimism/da/rollupda"
 	"github.com/ethereum-optimism/optimism/op-batcher/metrics"
 	"github.com/ethereum-optimism/optimism/op-node/eth"
 	"github.com/ethereum-optimism/optimism/op-node/rollup/derive"
 	opclient "github.com/ethereum-optimism/optimism/op-service/client"
 	"github.com/ethereum-optimism/optimism/op-service/txmgr"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/log"
@@ -77,9 +77,13 @@ func NewBatchSubmitterFromCLIConfig(cfg CLIConfig, l log.Logger, m metrics.Metri
 		return nil, err
 	}
 
-  daClient := (*da.Client)(nil)
-  if cfg.CentralizedDAApi != "" {
-    daClient = da.NewClient(cfg.CentralizedDAApi)
+  daClient := rollupda.NewClient(rcfg.BatchInboxAddress)
+  if rcfg.DataAvailabilityComittee != nil {
+    keyset, err := dac.NewKeySetFromString(rcfg.DataAvailabilityComittee.PublicKeys)
+    if err != nil {
+      return nil, fmt.Errorf("could not create DAC keyset: %w", err)
+    }
+    daClient = dac.NewClient(cfg.CentralizedDAApi, rcfg.BatchInboxAddress, keyset)
   }
 
 	batcherCfg := Config{
@@ -390,30 +394,29 @@ func (l *BatchSubmitter) publishTxToL1(ctx context.Context, queue *txmgr.Queue[t
 func (l *BatchSubmitter) sendTransaction(txdata txData, queue *txmgr.Queue[txData], receiptsCh chan txmgr.TxReceipt[txData]) {
 	// Do the gas estimation offline. A value of 0 will cause the [txmgr] to estimate the gas limit.
 	data := txdata.Bytes()
-	intrinsicGas, err := core.IntrinsicGas(data, nil, false, true, true, false)
+
+  batchRef, err := l.DA.PostBatch(data)
+  if err != nil {
+    l.log.Error("unable to publish data to DA", "err", err, "data_size", len(data))
+    return
+  }
+
+  tx, err := batchRef.ToTx()
+  if err != nil {
+    l.log.Error("unable to construct tx from batch ref", "err")
+  }
+
+  // NOTE(kelvyne): this only works while we post data to EOA addresses.
+  // If this changes, we need to move gas limit calculation to the underlying da.Client 
+	intrinsicGas, err := core.IntrinsicGas(tx.Data, nil, false, true, true, false)
 	if err != nil {
 		l.log.Error("Failed to calculate intrinsic gas", "error", err)
 		return
 	}
 
-  to := &l.Rollup.BatchInboxAddress
-  actualData := data
-  useDA := l.DA != nil && l.Rollup.DataAvailabilityInboxAddress != (common.Address{})
-  fmt.Println("---------------------useDA", useDA)
-  if useDA {
-    dataHash, err := l.DA.PostBatch(data)
-    if err != nil {
-      l.log.Error("unable to publish data to DA", "err", err, "data_size", len(data))
-      return
-    }
-
-    to = &l.Rollup.DataAvailabilityInboxAddress
-    actualData = append([]byte{da.CentralizedBatchHeaderID}, dataHash...)
-  }
-
 	candidate := txmgr.TxCandidate{
-		To:       to,
-		TxData:   actualData,
+		To:       tx.To,
+		TxData:   tx.Data,
 		GasLimit: intrinsicGas,
 	}
 	queue.Send(txdata, candidate, receiptsCh)

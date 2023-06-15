@@ -11,7 +11,6 @@ import (
 	"github.com/ethereum-optimism/optimism/op-node/rollup"
 	"github.com/ethereum-optimism/optimism/op-node/rollup/driver"
 	oppprof "github.com/ethereum-optimism/optimism/op-service/pprof"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type Config struct {
@@ -19,7 +18,7 @@ type Config struct {
 	L2     L2EndpointSetup
 	L2Sync L2SyncEndpointSetup
 
-	DA *da.Client
+	DA da.Client
 
 	Driver driver.Config
 
@@ -101,8 +100,8 @@ func (cfg *Config) Check() error {
 			return fmt.Errorf("p2p config error: %w", err)
 		}
 	}
-	if cfg.Rollup.DataAvailabilityInboxAddress != (common.Address{}) && cfg.DA == nil {
-		return errors.New("da inbox address set but no da client configured")
+	if cfg.Rollup.DataAvailabilityComittee != nil && cfg.DA == nil {
+		return errors.New("DAC set but no da client configured")
 	}
 	return nil
 }

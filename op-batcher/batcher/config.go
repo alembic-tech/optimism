@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli"
@@ -28,7 +27,7 @@ type Config struct {
 	L1Client   *ethclient.Client
 	L2Client   *ethclient.Client
 	RollupNode *sources.RollupClient
-  DA *da.Client
+  DA da.Client
 	TxManager  txmgr.TxManager
 
 	NetworkTimeout         time.Duration
@@ -50,7 +49,7 @@ func (c *Config) Check() error {
 	if err := c.Channel.Check(); err != nil {
 		return err
 	}
-	if c.Rollup.DataAvailabilityInboxAddress != (common.Address{}) && c.DA == nil {
+	if c.Rollup.DataAvailabilityComittee != nil && c.DA == nil {
 		return errors.New("da inbox address set but no da client configured")
 	}
 	return nil

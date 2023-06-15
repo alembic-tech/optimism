@@ -16,24 +16,27 @@ import (
 )
 
 var (
-	ErrBlockTimeZero                 = errors.New("block time cannot be 0")
-	ErrMissingChannelTimeout         = errors.New("channel timeout must be set, this should cover at least a L1 block time")
-	ErrInvalidSeqWindowSize          = errors.New("sequencing window size must at least be 2")
-	ErrMissingGenesisL1Hash          = errors.New("genesis L1 hash cannot be empty")
-	ErrMissingGenesisL2Hash          = errors.New("genesis L2 hash cannot be empty")
-	ErrGenesisHashesSame             = errors.New("achievement get! rollup inception: L1 and L2 genesis cannot be the same")
-	ErrMissingGenesisL2Time          = errors.New("missing L2 genesis time")
-	ErrMissingBatcherAddr            = errors.New("missing genesis system config batcher address")
-	ErrMissingOverhead               = errors.New("missing genesis system config overhead")
-	ErrMissingScalar                 = errors.New("missing genesis system config scalar")
-	ErrMissingGasLimit               = errors.New("missing genesis system config gas limit")
-	ErrMissingBatchInboxAddress      = errors.New("missing batch inbox address")
-	ErrMissingDepositContractAddress = errors.New("missing deposit contract address")
-	ErrMissingL1ChainID              = errors.New("L1 chain ID must not be nil")
-	ErrMissingL2ChainID              = errors.New("L2 chain ID must not be nil")
-	ErrChainIDsSame                  = errors.New("L1 and L2 chain IDs must be different")
-	ErrL1ChainIDNotPositive          = errors.New("L1 chain ID must be non-zero and positive")
-	ErrL2ChainIDNotPositive          = errors.New("L2 chain ID must be non-zero and positive")
+  ErrBlockTimeZero                 = errors.New("block time cannot be 0")
+  ErrMissingChannelTimeout         = errors.New("channel timeout must be set, this should cover at least a L1 block time")
+  ErrInvalidSeqWindowSize          = errors.New("sequencing window size must at least be 2")
+  ErrMissingGenesisL1Hash          = errors.New("genesis L1 hash cannot be empty")
+  ErrMissingGenesisL2Hash          = errors.New("genesis L2 hash cannot be empty")
+  ErrGenesisHashesSame             = errors.New("achievement get! rollup inception: L1 and L2 genesis cannot be the same")
+  ErrMissingGenesisL2Time          = errors.New("missing L2 genesis time")
+  ErrMissingBatcherAddr            = errors.New("missing genesis system config batcher address")
+  ErrMissingOverhead               = errors.New("missing genesis system config overhead")
+  ErrMissingScalar                 = errors.New("missing genesis system config scalar")
+  ErrMissingGasLimit               = errors.New("missing genesis system config gas limit")
+  ErrMissingBatchInboxAddress      = errors.New("missing batch inbox address")
+  ErrMissingDepositContractAddress = errors.New("missing deposit contract address")
+  ErrMissingL1ChainID              = errors.New("L1 chain ID must not be nil")
+  ErrMissingL2ChainID              = errors.New("L2 chain ID must not be nil")
+  ErrChainIDsSame                  = errors.New("L1 and L2 chain IDs must be different")
+  ErrL1ChainIDNotPositive          = errors.New("L1 chain ID must be non-zero and positive")
+  ErrL2ChainIDNotPositive          = errors.New("L2 chain ID must be non-zero and positive")
+
+  ErrInvalidDACHonnestMembersAssumption = errors.New("missing DAC honnest member assumption")
+  ErrInsufficientDACMembers             = errors.New("insufficient number of DAC members")
 )
 
 type Genesis struct {
@@ -47,6 +50,14 @@ type Genesis struct {
 	// The L2 genesis block may not include transactions, and thus cannot encode the config values,
 	// unlike later L2 blocks.
 	SystemConfig eth.SystemConfig `json:"system_config"`
+}
+
+type DAC struct {
+  // List of the DAC members' public keys.
+  // Proof of owneship of the associated private keys must be done.
+  PublicKeys []string `json:"public_keys"`
+
+  HonnestMembersAssumption uint `json:"honnest_members_assumption"`
 }
 
 type Config struct {
@@ -69,10 +80,6 @@ type Config struct {
 	// Required to identify the L2 network and create p2p signatures unique for this chain.
 	L2ChainID *big.Int `json:"l2_chain_id"`
 
-  // L1 address that off-chain batches information are sent to.
-  // These information must be sufficient to collect the whole batches data
-  DataAvailabilityInboxAddress common.Address `json:"data_availability_inbox_address,omitempty"`
-
 	// RegolithTime sets the activation time of the Regolith network-upgrade:
 	// a pre-mainnet Bedrock change that addresses findings of the Sherlock contest related to deposit attributes.
 	// "Regolith" is the loose deposited rock that sits on top of Bedrock.
@@ -81,6 +88,9 @@ type Config struct {
 
 	// Note: below addresses are part of the block-derivation process,
 	// and required to be the same network-wide to stay in consensus.
+
+  // DAC configuration
+  DataAvailabilityComittee *DAC `json:"data_availability_committee,omitempty"`
 
 	// L1 address that batches are sent to.
 	BatchInboxAddress common.Address `json:"batch_inbox_address"`
@@ -248,7 +258,21 @@ func (cfg *Config) Check() error {
 	if cfg.L2ChainID.Sign() < 1 {
 		return ErrL2ChainIDNotPositive
 	}
-	return nil
+	return cfg.DataAvailabilityComittee.Check()
+}
+
+func (dac *DAC) Check() error {
+  if (dac == nil) {
+    return nil
+  }
+
+  if len(dac.PublicKeys) < 2 {
+    return ErrInsufficientDACMembers
+  }
+  if dac.HonnestMembersAssumption == 0 || dac.HonnestMembersAssumption > uint(len(dac.PublicKeys)) {
+    return ErrInvalidDACHonnestMembersAssumption
+  }
+  return nil
 }
 
 func (c *Config) L1Signer() types.Signer {

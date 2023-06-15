@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 
+	"github.com/ethereum-optimism/optimism/da/rollupda"
 	"github.com/ethereum-optimism/optimism/op-node/eth"
 	"github.com/ethereum-optimism/optimism/op-node/rollup"
 	"github.com/ethereum-optimism/optimism/op-node/testlog"
@@ -121,7 +122,7 @@ func TestDataFromEVMTransactions(t *testing.T) {
 			}
 		}
 
-		out := DataFromEVMTransactions(cfg, batcherAddr, txs, testlog.Logger(t, log.LvlCrit))
+		out, _ := DataFromEVMTransactions(cfg, batcherAddr, txs, rollupda.NewClient(cfg.BatchInboxAddress), testlog.Logger(t, log.LvlCrit))
 		require.ElementsMatch(t, expectedData, out)
 	}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/ethereum-optimism/optimism/da"
+	"github.com/ethereum-optimism/optimism/da/rollupda"
 	"github.com/ethereum-optimism/optimism/op-node/eth"
 	"github.com/ethereum-optimism/optimism/op-node/rollup"
 )
@@ -76,16 +77,13 @@ type DerivationPipeline struct {
 }
 
 // NewDerivationPipeline creates a derivation pipeline, which should be reset before use.
-func NewDerivationPipeline(log log.Logger, cfg *rollup.Config, l1Fetcher L1Fetcher, engine Engine, metrics Metrics) *DerivationPipeline {
-  return NewDerivationPipelineWithDA(log, cfg, l1Fetcher, engine, metrics, nil)
-}
-
-// NewDerivationPipeline creates a derivation pipeline, which should be reset before use.
-func NewDerivationPipelineWithDA(log log.Logger, cfg *rollup.Config, l1Fetcher L1Fetcher, engine Engine, metrics Metrics, da *da.Client) *DerivationPipeline {
-
+func NewDerivationPipeline(log log.Logger, cfg *rollup.Config, l1Fetcher L1Fetcher, engine Engine, metrics Metrics, da da.Client) *DerivationPipeline {
+  if da == nil {
+    da = rollupda.NewClient(cfg.BatchInboxAddress)
+  }
 	// Pull stages
 	l1Traversal := NewL1Traversal(log, cfg, l1Fetcher)
-  dataSrc := NewDataSourceFactoryWithDA(log, cfg, l1Fetcher, da) // auxiliary stage for L1Retrieval
+  dataSrc := NewDataSourceFactory(log, cfg, l1Fetcher, da) // auxiliary stage for L1Retrieval
 	l1Src := NewL1Retrieval(log, dataSrc, l1Traversal)
 	frameQueue := NewFrameQueue(log, l1Src)
 	bank := NewChannelBank(log, cfg, frameQueue, l1Fetcher)

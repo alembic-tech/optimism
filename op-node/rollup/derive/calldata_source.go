@@ -31,14 +31,10 @@ type DataSourceFactory struct {
 	log     log.Logger
 	cfg     *rollup.Config
 	fetcher L1TransactionFetcher
-  da *da.Client
+  da da.Client
 }
 
-func NewDataSourceFactory(log log.Logger, cfg *rollup.Config, fetcher L1TransactionFetcher) *DataSourceFactory {
-	return NewDataSourceFactoryWithDA(log, cfg, fetcher, nil)
-}
-
-func NewDataSourceFactoryWithDA(log log.Logger, cfg *rollup.Config, fetcher L1TransactionFetcher, da *da.Client) *DataSourceFactory {
+func NewDataSourceFactory(log log.Logger, cfg *rollup.Config, fetcher L1TransactionFetcher, da da.Client) *DataSourceFactory {
   return &DataSourceFactory{log: log, cfg: cfg, fetcher: fetcher, da: da}
 }
 
@@ -58,7 +54,7 @@ type DataSource struct {
 	id      eth.BlockID
 	cfg     *rollup.Config // TODO: `DataFromEVMTransactions` should probably not take the full config
 	fetcher L1TransactionFetcher
-	da      *da.Client
+	da      da.Client
 	log     log.Logger
 
 	batcherAddr common.Address
@@ -72,7 +68,7 @@ func NewDataSource(ctx context.Context, log log.Logger, cfg *rollup.Config, fetc
 
 // NewDataSourceWithDA creates a new calldata source. It suppresses errors in fetching the L1 block if they occur.
 // If there is an error, it will attempt to fetch the result on the next call to `Next`.
-func NewDataSourceWithDA(ctx context.Context, log log.Logger, cfg *rollup.Config, fetcher L1TransactionFetcher, block eth.BlockID, batcherAddr common.Address, da *da.Client) DataIter {
+func NewDataSourceWithDA(ctx context.Context, log log.Logger, cfg *rollup.Config, fetcher L1TransactionFetcher, block eth.BlockID, batcherAddr common.Address, da da.Client) DataIter {
 	_, txs, err := fetcher.InfoAndTxsByHash(ctx, block.Hash)
 	if err != nil {
 		return &DataSource{
@@ -135,11 +131,14 @@ func (ds *DataSource) Next(ctx context.Context) (eth.Data, error) {
 // DataFromEVMTransactions filters all of the transactions and returns the calldata from transactions
 // that are sent to the batch inbox address from the batch sender address.
 // This will return an empty array if no valid transactions are found.
-func DataFromEVMTransactions(config *rollup.Config, batcherAddr common.Address, txs types.Transactions, daClient *da.Client, log log.Logger) ([]eth.Data, error) {
+func DataFromEVMTransactions(config *rollup.Config, batcherAddr common.Address, txs types.Transactions, daClient da.Client, log log.Logger) ([]eth.Data, error) {
 	var out []eth.Data
 	l1Signer := config.L1Signer()
 	for j, tx := range txs {
 		to := tx.To()
+    if to == nil {
+      continue
+    }
 		if to != nil && *to == config.BatchInboxAddress {
 			seqDataSubmitter, err := l1Signer.Sender(tx) // optimization: only derive sender if To is correct
 			if err != nil {
@@ -152,36 +151,12 @@ func DataFromEVMTransactions(config *rollup.Config, batcherAddr common.Address, 
 				continue // not an authorized batch submitter, ignore
 			}
 
-			out = append(out, tx.Data())
-		} else if to != nil && *to == config.DataAvailabilityInboxAddress {
-
-      log.Info("da tx detected", "hash", tx.Hash())
-
-			if daClient == nil {
-        return nil, errors.New("alternative DA transaction found but no DA client")
-			}
-
-			seqDataSubmitter, err := l1Signer.Sender(tx) // optimization: only derive sender if To is correct
-			if err != nil {
-				log.Warn("da tx in inbox with invalid signature", "index", j, "err", err)
-				continue // bad signature, ignore
-			}
-			// some random L1 user might have sent a transaction to our batch inbox, ignore them
-			if seqDataSubmitter != batcherAddr {
-				log.Warn("da tx in inbox with unauthorized submitter", "index", j, "err", err)
-				continue // not an authorized batch submitter, ignore
-			}
-
-      if len(tx.Data()) != 33 || tx.Data()[0] != da.CentralizedBatchHeaderID {
-        log.Warn("invalid DA batch header", "tx_hash", tx.Hash())
-        continue
+      ref := tx.Data()
+      data, err := daClient.GetBatch(ref)
+      if err != nil {
+        log.Warn("could not retrieve batch from ref", "index", j, "err", err)
       }
-      dataHash := tx.Data()[1:]
-			data, err := daClient.GetBatch(dataHash)
-			fmt.Println("-----------data from DA", data)
-			if err != nil {
-				return nil, err
-			}
+
 			out = append(out, data)
 		}
 	}

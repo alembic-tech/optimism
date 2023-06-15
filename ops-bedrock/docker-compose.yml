@@ -8,7 +8,9 @@ volumes:
   l1_data:
   l2_data:
   op_log:
-  mongodb-data:
+  member1_data:
+  member2_data:
+  member3_data:
 
 services:
   l1:
@@ -138,22 +140,35 @@ services:
     build:
       context: ../packages/dac/das
       dockerfile: ./Dockerfile
+    environment:
+      URLS: http://member1:3000,http://member2:3000,http://member3:3000
     ports:
       - "3000:3000"
 
-  member:
+  member1:
     build:
-      context: ../packages/dac/member
-      dockerfile: ./Dockerfile
-    ports:
-      - "8001:8001"
-    depends_on:
-      - mongo
-
-  mongo:
-    image: mongo:latest
-    restart: always
-    ports:
-      - 27012:27017
+      context: ../
+      dockerfile: ./da/dac/member.Dockerfile
+    environment:
+      DIRECTORY: /data
+      PRIVATE_KEY: "0x39bfcae8591588ef01774d3a5003d3a5b5c95a00b2142b20b217eedaeb124f63"
     volumes:
-      - mongodb-data:/data/db
+      - "member1_data:/data"
+  member2:
+    build:
+      context: ../
+      dockerfile: ./da/dac/member.Dockerfile
+    environment:
+      DIRECTORY: /data
+      PRIVATE_KEY: "0x39bfcae8591588ef01774d3a5003d3a5b5c95a00b2142b20b217eedaeb124f64"
+    volumes:
+      - "member2_data:/data"
+  member3:
+    build:
+      context: ../
+      dockerfile: ./da/dac/member.Dockerfile
+    environment:
+      DIRECTORY: /data
+      PRIVATE_KEY: "0x39bfcae8591588ef01774d3a5003d3a5b5c95a00b2142b20b217eedaeb124f65"
+    volumes:
+      - "member3_data:/data"

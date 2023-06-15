@@ -98,7 +98,6 @@ def main():
             '--deployment-dir', deployment_dir,
             '--outfile.l2', pjoin(devnet_dir, 'genesis-l2.json'),
             '--outfile.rollup', pjoin(devnet_dir, 'rollup.json'),
-            '--dac.enable'
         ], cwd=op_node_dir)
 
     rollup_config = read_json(rollup_config_path)
@@ -107,7 +106,7 @@ def main():
         shutil.move(devnet_cfg_backup, devnet_cfg_orig)
 
     log.info('Bringing up L2.')
-    run_command(['docker-compose', 'up', '-d', 'l2', 'data-availability', 'member'], cwd=ops_bedrock_dir, env={
+    run_command(['docker-compose', 'up', '-d', 'l2', 'data-availability', 'member1', 'member2', 'member3'], cwd=ops_bedrock_dir, env={
         'PWD': ops_bedrock_dir
     })
     wait_up(9545)

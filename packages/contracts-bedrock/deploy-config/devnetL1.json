@@ -6,7 +6,6 @@
   "sequencerWindowSize": 200,
   "channelTimeout": 120,
   "p2pSequencerAddress": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
-  "dataAvailabilityInboxAddress": "0xff11100000000000000000000000000000000000",
   "batchInboxAddress": "0xff00000000000000000000000000000000000000",
   "batchSenderAddress": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
   "l2OutputOracleSubmissionInterval": 20,
@@ -34,7 +33,14 @@
   "governanceTokenOwner": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
   "eip1559Denominator": 8,
   "eip1559Elasticity": 2,
-  "l1GenesisBlockTimestamp": "0x647e06cb",
+  "l1GenesisBlockTimestamp": "0x648b00de",
   "l1StartingBlockTag": "earliest",
-  "l2GenesisRegolithTimeOffset": "0x0"
+  "l2GenesisRegolithTimeOffset": "0x0",
+  "enableDAC": true,
+  "dacPublicKeys": [
+    "10c36f69c5f73a0ae95fa1768e68a58973d0a3a61f1e9bf889050217388ebb24c57341fb5528b8f2b6138d5149d88c611003f241a22da86d76e15cdfdc06d6ea86845d5f662e3209044716add654d98aa6a9c99632b2d647ac280e36d9da5756",
+    "1866562f34d7339fc7831b4b6a47defe714007f4720d03849f2e90b0ee8330d56d76e0957f500fe76f24e6a730016bcf091e3ba87744ceefd90503b120550eb9554f5683b739fb1cbdd6e56ac7b89288e9f35ce7e32d40008f347b21e036602c",
+    "1830f58c42f446a5659c08a5c39a2734cdbca673007076612384387d3f79e6c44c2427012cac0b011c698b9c0d5834920a7ec51884e4f7b43d73a683d1038c1b940dd4c1aa69bd097419b8ed69ff9447e44c9da1e8ea38ac916655260a42b14e"
+  ],
+  "dacHonnestMembersAssumption": 2
 }

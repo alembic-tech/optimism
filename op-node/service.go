@@ -8,7 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ethereum-optimism/optimism/da"
+	"github.com/ethereum-optimism/optimism/da/dac"
+	"github.com/ethereum-optimism/optimism/da/rollupda"
 	"github.com/ethereum-optimism/optimism/op-node/chaincfg"
 	"github.com/ethereum-optimism/optimism/op-node/sources"
 	oppprof "github.com/ethereum-optimism/optimism/op-service/pprof"
@@ -58,11 +59,16 @@ func NewConfig(ctx *cli.Context, log log.Logger) (*node.Config, error) {
 
 	l2SyncEndpoint := NewL2SyncEndpointConfig(ctx)
 
-  var daClient *da.Client
+  daClient := rollupda.NewClient(rollupConfig.BatchInboxAddress)
   daURL := ctx.GlobalString(flags.CentralizedDAApiFlag.Name)
-  if daURL != "" {
-    log.Info("initializing centralized da client", "url", daURL)
-    daClient = da.NewClient(daURL)
+  if rollupConfig.DataAvailabilityComittee != nil {
+    log.Info("initializing DAC da client", "url", daURL)
+    log.Info("public keys", "public_keys", rollupConfig.DataAvailabilityComittee.PublicKeys)
+    keyset, err := dac.NewKeySetFromString(rollupConfig.DataAvailabilityComittee.PublicKeys)
+    if err != nil {
+      return nil, fmt.Errorf("could not create DAC keyset: %w", err)
+    }
+    daClient = dac.NewClient(daURL, rollupConfig.BatchInboxAddress, keyset)
   }
 
 	cfg := &node.Config{

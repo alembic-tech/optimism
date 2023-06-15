@@ -201,7 +201,7 @@ func (n *OpNode) initL2(ctx context.Context, cfg *Config, snapshotLog log.Logger
 		return err
 	}
 
-	n.l2Driver = driver.NewDriverWithDA(&cfg.Driver, &cfg.Rollup, n.l2Source, n.l1Source, n, n, cfg.DA, n.log, snapshotLog, n.metrics)
+	n.l2Driver = driver.NewDriver(&cfg.Driver, &cfg.Rollup, n.l2Source, n.l1Source, n, n, cfg.DA, n.log, snapshotLog, n.metrics)
 
 	return nil
 }

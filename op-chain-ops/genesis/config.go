@@ -39,7 +39,6 @@ type DeployConfig struct {
 	SequencerWindowSize       uint64         `json:"sequencerWindowSize"`
 	ChannelTimeout            uint64         `json:"channelTimeout"`
 	P2PSequencerAddress       common.Address `json:"p2pSequencerAddress"`
-	DataAvailabilityInboxAddress         common.Address `json:"dataAvailabilityInboxAddress"`
 	BatchInboxAddress         common.Address `json:"batchInboxAddress"`
 	BatchSenderAddress        common.Address `json:"batchSenderAddress"`
 
@@ -113,6 +112,10 @@ type DeployConfig struct {
   L1GasPriceDivider uint64 `json:"l1GasPriceDivider,omitempty"`
 
 	FundDevAccounts bool `json:"fundDevAccounts"`
+
+  EnableDAC bool `json:"enableDAC"`
+  DACPublicKeys []string `json:"dacPublicKeys"`
+  DACHonnestMembersAssumption uint `json:"dacHonnestMembersAssumption"`
 }
 
 // Check will ensure that the config is sane and return an error when it is not
@@ -319,6 +322,14 @@ func (d *DeployConfig) RollupConfig(l1StartBlock *types.Block, l2GenesisBlockHas
 		return nil, errors.New("SystemConfigProxy cannot be address(0)")
 	}
 
+  var dac *rollup.DAC
+  if d.EnableDAC {
+    dac = &rollup.DAC{
+    	PublicKeys:               d.DACPublicKeys,
+    	HonnestMembersAssumption: d.DACHonnestMembersAssumption,
+    }
+  }
+
 	return &rollup.Config{
 		Genesis: rollup.Genesis{
 			L1: eth.BlockID{
@@ -347,6 +358,8 @@ func (d *DeployConfig) RollupConfig(l1StartBlock *types.Block, l2GenesisBlockHas
 		DepositContractAddress: d.OptimismPortalProxy,
 		L1SystemConfigAddress:  d.SystemConfigProxy,
 		RegolithTime:           d.RegolithTime(l1StartBlock.Time()),
+
+    DataAvailabilityComittee: dac,
 	}, nil
 }
 
