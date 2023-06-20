@@ -7,11 +7,11 @@ RUN apk add --no-cache make gcc musl-dev linux-headers git jq bash
 COPY ./go.mod /app/go.mod
 COPY ./go.sum /app/go.sum
 
-
-WORKDIR /app/op-batcher
+WORKDIR /app/
 
 RUN go mod download
 
+WORKDIR /app/op-batcher
 # build op-batcher with the shared go.mod & go.sum files
 COPY ./op-batcher /app/op-batcher
 COPY ./op-bindings /app/op-bindings

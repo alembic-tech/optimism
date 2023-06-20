@@ -12,10 +12,10 @@
 
   "proxyAdminOwner": "0x7F1c3D46E52A2Fcef4B28BCfeEB11030A4544EFd",
 
-  "l1StartingBlockTag": "0x202d9b704d601edcb4dcf7c6be863da905c1e58eb8f365aca2d4c7fdb78cc619",
+  "l1StartingBlockTag": "0x966a6dcaef8f8376cffb54d3e1f9d6cd550c820f340644a440a4a5bd929a0170",
 
   "l1ChainID": 11155111,
-  "l2ChainID": 5419,
+  "l2ChainID": 5519,
   "l2BlockTime": 2,
 
   "maxSequencerDrift": 600,
@@ -24,25 +24,32 @@
 
   "p2pSequencerAddress": "0x4509f9e68816F13dd9C8bA86D358536d36bCa8c3",
   "batchInboxAddress": "0xff0000000000000000000000000000fff0009419",
-  "dataAvailabilityInboxAddress": "0xff0666000000000000000000000000fff0009419",
   "batchSenderAddress": "0x137DE07f3C90e703f3De0fa658ea6f4b4150A6c9",
 
-  "l2OutputOracleSubmissionInterval": 120,
+  "l2OutputOracleSubmissionInterval": 7200,
   "l2OutputOracleStartingTimestamp": -1,
   "l2OutputOracleProposer": "0xD4f8878956Ad8C2D23CDDFFb77B8020B586C49E5",
 
   "finalizationPeriodSeconds": 12,
 
   "gasPriceOracleOverhead": 2100,
-  "gasPriceOracleScalar": 10000,
+  "gasPriceOracleScalar": 11825,
 
   "governanceTokenSymbol": "MUST",
   "governanceTokenName": "Must",
 
   "l2GenesisBlockGasLimit": "0x17D7840",
-  "l2GenesisBlockBaseFeePerGas": "0x3b9aca00",
+  "l2GenesisBlockBaseFeePerGas": "0xf4240",
   "l2GenesisRegolithTimeOffset": "0x0",
 
   "eip1559Denominator": 50,
-  "eip1559Elasticity": 10
+  "eip1559Elasticity": 10,
+
+  "enableDAC": true,
+  "dacPublicKeys": [
+    "07e23eb4be09609d92e73a4660f6b543ba26777d53db3e1ef64ef934177a82fe090f3bf31bb0fd0adb9ee7a2e4cf3260184ea695cfbb36ffeb1bc6183268c3ff0799699cdfa067b6aea70e908b3b8b31e924fa70fc105fda531b80f9ccbb528e",
+    "0f630b04de66c7a4120344dba4e46954bf48f9faa7b9085ee1fdb3a2880af43ae8c7dac640d2ad7d93ff38f5737c3d1000070a64414e9607dd75ca886f52cfdb4745d3f443332e69c5f73ee23fcff62593b24504b29b65f3fb5aaa2a6516d729",
+    "0bf160cda8786d5c50ef3841a1412fce870f718cc838dce3bd1ef1ef2e3a6a8141d374ceb45f17b7dcd0d628782549110295a32173312d888a6a75c9b5ed917624cd81c70cde56fe8cea304cb537f5cf6ea0dd74ea00996a36640cd8ae38a37f"
+  ],
+  "dacHonnestMembersAssumption": 2
 }
