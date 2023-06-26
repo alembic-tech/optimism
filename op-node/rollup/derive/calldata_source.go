@@ -154,7 +154,7 @@ func DataFromEVMTransactions(config *rollup.Config, batcherAddr common.Address, 
       ref := tx.Data()
       data, err := daClient.GetBatch(ref)
       if err != nil {
-        log.Warn("could not retrieve batch from ref", "index", j, "err", err)
+        return nil, fmt.Errorf("could not retrieve batch from ref: %w", err)
       }
 
 			out = append(out, data)

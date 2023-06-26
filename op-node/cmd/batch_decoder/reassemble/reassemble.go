@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum-optimism/optimism/op-node/eth"
 	"github.com/ethereum-optimism/optimism/op-node/rollup/derive"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 type ChannelWithMetadata struct {
@@ -71,7 +72,22 @@ func Channels(config Config) {
 		if err := writeChannel(ch, filename); err != nil {
 			log.Fatal(err)
 		}
-	}
+
+    for _, batch := range ch.Batches {
+      if len(batch.Transactions) > 0 {
+
+       fmt.Println(batch.Transactions)
+       for _, b := range batch.Transactions {
+         var tx types.Transaction
+         if err := tx.UnmarshalBinary(b); err != nil {
+           fmt.Printf("could not decode txs: %v\n", err)
+         }
+
+         fmt.Println(tx.To(), tx.Value())
+       }
+     }
+   }
+ }
 }
 
 func writeChannel(ch ChannelWithMetadata, filename string) error {

@@ -428,6 +428,11 @@ func (eq *EngineQueue) tryNextUnsafePayload(ctx context.Context) error {
 			eq.log.Info("skipping unsafe payload, since it does not build onto the existing unsafe chain", "safe", eq.safeHead.ID(), "unsafe", first.ID(), "payload", first.ID())
 			eq.unsafePayloads.Pop()
 		}
+
+    if uint64(first.BlockNumber) <= eq.unsafeHead.Number {
+      eq.log.Info("skipping unsafe payload, since it is older than unsafe head", "unsafe", eq.unsafeHead.ID(), "unsafe_payload", first.ID())
+      eq.unsafePayloads.Pop()
+    }
 		return io.EOF // time to go to next stage if we cannot process the first unsafe payload
 	}
 

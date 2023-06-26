@@ -10,8 +10,10 @@ import (
 	"path"
 	"time"
 
+	"github.com/ethereum-optimism/optimism/da/dac"
 	"github.com/ethereum-optimism/optimism/op-node/rollup/derive"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -81,7 +83,14 @@ func fetchBatchesPerBlock(client *ethclient.Client, number *big.Int, signer type
 
 			validFrames := true
 			frameError := ""
-			frames, err := derive.ParseFrames(tx.Data())
+      da := dac.NewClient("https://da.testnet.optimism.alembic.tech", config.BatchInbox, nil)
+      data, err := da.GetBatch(tx.Data())
+      if err != nil {
+        fmt.Printf("DA could not retrieve data of %v: %v\n", hexutil.Encode(tx.Data()), err)
+        validFrames = false
+        frameError = err.Error()
+      }
+			frames, err := derive.ParseFrames(data)
 			if err != nil {
 				fmt.Printf("Found a transaction (%s) with invalid data: %v\n", tx.Hash().String(), err)
 				validFrames = false

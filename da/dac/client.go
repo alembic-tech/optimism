@@ -146,6 +146,7 @@ func (c *client) GetBatch(dataRef []byte) ([]byte, error) {
   apiUrl := *c.url
   apiUrl.Path = fmt.Sprintf("batch/%s", hex.EncodeToString(dataHash))
 
+  fmt.Println(apiUrl.Path)
   httpClient := http.DefaultClient
 
   resp, err := httpClient.Get(apiUrl.String())
@@ -159,12 +160,16 @@ func (c *client) GetBatch(dataRef []byte) ([]byte, error) {
   }
 
   type response struct {
-    Data []byte `json:"data"`
+    Data string `json:"data"`
   }
   r := response{}
   if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
     return nil, fmt.Errorf("invalid get batch response data: %w", err)
   }
 
-  return r.Data, nil
+  rawData, err := hex.DecodeString(r.Data)
+  if err != nil {
+    return nil, fmt.Errorf("invalid batch data: %w", err)
+  }
+  return rawData, nil
 }
